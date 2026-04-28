@@ -8,18 +8,22 @@ if (!SHEET_ID) {
   console.warn('[sheets] SHEET_ID is not set. Configure server/.env before making requests.');
 }
 
-const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
-  ? path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS)
-  : null;
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
-if (credPath && !fs.existsSync(credPath)) {
-  console.warn(`[sheets] Credentials file not found at ${credPath}. The server will start, but Sheets calls will fail until you fix this.`);
+let auth;
+if (process.env.GOOGLE_CREDENTIALS_JSON) {
+  const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+  auth = new google.auth.GoogleAuth({ credentials, scopes: SCOPES });
+} else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const credPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+  if (!fs.existsSync(credPath)) {
+    console.warn(`[sheets] Credentials file not found at ${credPath}. The server will start, but Sheets calls will fail until you fix this.`);
+  }
+  auth = new google.auth.GoogleAuth({ keyFile: credPath, scopes: SCOPES });
+} else {
+  console.warn('[sheets] No credentials configured. Set GOOGLE_CREDENTIALS_JSON (production) or GOOGLE_APPLICATION_CREDENTIALS (local).');
+  auth = new google.auth.GoogleAuth({ scopes: SCOPES });
 }
-
-const auth = new google.auth.GoogleAuth({
-  keyFile: credPath || undefined,
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
 
 const sheets = google.sheets({ version: 'v4', auth });
 

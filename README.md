@@ -93,3 +93,165 @@ Open <http://localhost:5173>. The Vite dev server proxies `/api` to the Express 
 
 - **Backend:** Node 18+, Express, googleapis (service account), CORS, dotenv.
 - **Frontend:** Vite, React 18, React Router 6, Tailwind CSS, react-select, react-apexcharts, react-datepicker, react-hot-toast.
+
+ঠিক আছে—তোমার problemটা খুব clear 👍
+আমি একদম beginner-friendly ভাবে দেখাচ্ছি কীভাবে করবে, যেন একবারেই কাজ হয়ে যায়।
+
+---
+
+# 🔧 Step-by-step (ENOENT fix + Google Sheets connect)
+
+## ✅ Step 1: Service Account JSON download করো
+
+1. এই লিঙ্কে যাও 👉 Google Cloud Console
+
+2. উপরে **Project dropdown → New Project → Create**
+
+   * Name দাও: `aic-inventory`
+
+3. Left menu:
+
+   * **APIs & Services → Library**
+   * Search: **Google Sheets API**
+   * Click → **Enable**
+
+4. তারপর:
+
+   * **APIs & Services → Credentials**
+   * Click: **+ Create Credentials → Service Account**
+
+5. Fill করো:
+
+   * Name: `aic-sheets`
+   * Next → Next → Done
+
+6. এখন service account এ click করো
+   → **Keys tab → Add Key → Create new key → JSON → Create**
+
+👉 একটা `.json` file download হবে (এটাই main জিনিস)
+
+---
+
+## 📁 Step 2: File project এ বসাও
+
+1. এই path এ যাও:
+
+```
+D:\demo\aic\server\
+```
+
+2. ভিতরে folder বানাও:
+
+```
+credentials
+```
+
+3. Download করা JSON file:
+   👉 rename করো → `sa.json`
+
+4. move করে রাখো:
+
+```
+D:\demo\aic\server\credentials\sa.json
+```
+
+---
+
+## 🔐 Step 3: Google Sheet access দাও
+
+1. `sa.json` file open করো (Notepad)
+2. এই line খুঁজো:
+
+```
+"client_email": "aic-sheets@aic-inventory.iam.gserviceaccount.com"
+```
+
+3. ওই email copy করো
+
+4. এখন তোমার Google Sheet open করো
+
+5. **Share button → paste email → Editor → Send**
+
+⚠️ Important: না দিলে permission error দিবে
+
+---
+
+## ⚙️ Step 4: `.env` file setup
+
+Path:
+
+```
+D:\demo\aic\server\.env
+```
+
+এটা open করে লিখো:
+
+```
+SHEET_ID=your_sheet_id_here
+GOOGLE_APPLICATION_CREDENTIALS=./credentials/sa.json
+PORT=4000
+```
+
+---
+
+### 📌 SHEET_ID কোথায় পাবো?
+
+Google Sheet URL:
+
+```
+https://docs.google.com/spreadsheets/d/1AbCDeFgHiJkLmN12345/edit
+```
+
+👉 এই part:
+
+```
+1AbCDeFgHiJkLmN12345
+```
+
+---
+
+## ▶️ Step 5: Run করো
+
+Terminal এ:
+
+```
+cd D:\demo\aic
+npm run dev
+```
+
+---
+
+# 🚀 Expected Result
+
+সব ঠিক থাকলে:
+
+* Server run হবে → `http://localhost:4000`
+* React app → `http://localhost:5173`
+* Google Sheet data load হবে ✅
+
+---
+
+# ❌ যদি আবার error আসে
+
+Check করো:
+
+* `sa.json` path ঠিক আছে?
+* `.env` ঠিক লিখছো?
+* Sheet share করছো service account email এ?
+* Google Sheets API enable করা আছে?
+
+---
+
+# 💡 Extra Tip (Important)
+
+Apps Script (`set.js`) নিয়ে tension নিও না ❌
+👉 এটা শুধু একবার sheet create করার জন্য
+👉 main কাজ করছে:
+
+```
+React → Node → Google Sheets API
+```
+
+---
+
+চাও তো আমি তোমার `server.js` / config check করে দিয়ে দিতে পারি—just paste করো 👍
